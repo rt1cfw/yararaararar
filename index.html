@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعالم يارا الخاص</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #475569 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+            padding: 20px;
+        }
+
+        /* حاوية الصفحات المرنة */
+        .container {
+            width: 100%;
+            max-width: 650px;
+            text-align: center;
+            z-index: 10;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .step {
+            display: none;
+            width: 100%;
+        }
+
+        .step.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.8s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- قلوب نابضة خلف الظرف --- */
+        .bg-hearts {
+            position: absolute;
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.2);
+            animation: pulse 2s infinite ease-in-out;
+            pointer-events: none;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.2; }
+            50% { transform: scale(1.2); opacity: 0.5; }
+        }
+
+        /* --- تصميم الظرف التفاعلي --- */
+        .envelope-container {
+            position: relative;
+            width: 280px;
+            height: 180px;
+            margin: 2rem auto;
+            background: #cbd5e1;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .envelope-container:hover {
+            transform: scale(1.03);
+        }
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 140px solid transparent;
+            border-right: 140px solid transparent;
+            border-top: 100px solid #94a3b8;
+            transform-origin: top;
+            transition: transform 0.4s ease;
+            z-index: 3;
+        }
+        .envelope-front {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 140px solid #cbd5e1;
+            border-right: 140px solid #cbd5e1;
+            border-bottom: 90px solid #b4f4;
+            border-top: 90px solid transparent;
+            border-radius: 0 0 10px 10px;
+            z-index: 4;
+            pointer-events: none;
+        }
+        .heart-seal {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 30px;
+            height: 30px;
+            background: #ffffff;
+            z-index: 5;
+            transition: opacity 0.3s ease;
+        }
+        .heart-seal::before, .heart-seal::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #ffffff;
+            border-radius: 50%;
+        }
+        .heart-seal::before { left: -15px; }
+        .heart-seal::after { top: -15px; }
+
+        /* --- الرسالة الأولى: مستطيل فخم في منتصف الشاشة --- */
+        .letter-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 90%;
+            max-width: 550px;
+            background: #ffffff;
+            color: #0f172a;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: right;
+            border-top: 5px solid #94a3b8;
+        }
+        .envelope-container.open + .letter-popup {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
+        }
+        .envelope-container.open .envelope-flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+        .envelope-container.open .heart-seal {
+            opacity: 0;
+        }
+
+        .handwritten-text {
+            font-size: 1.6rem;
+            font-weight: 300;
+            color: #f1f5f9;
+            margin: 1rem 0;
+        }
+
+        h1 { font-size: 2rem; color: #ffffff; margin-bottom: 1.5rem; font-weight: 700; }
+        
+        /* الأزرار المتناسقة */
+        .nav-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 1.5rem; width: 100%; }
+        .btn {
+            background: transparent;
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 10px 25px;
+            font-size: 0.95rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+        }
+
+        /* --- تصميم الصورة المعلقة بالخيوط الثلاثة --- */
+        .photo-hanger {
+            position: relative;
+            margin: 0 auto 2rem auto;
+            width: 160px;
+            height: 210px;
+            animation: swing 4s infinite ease-in-out;
+            transform-origin: top center;
+        }
+        .string {
+            position: absolute;
+            top: -50px;
+            width: 1px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255, 255, 255, 0.6));
+            height: 55px;
+        }
+        .string-left { left: 15%; }
+        .string-center { left: 50%; }
+        .string-right { left: 85%; }
+
+        .yara-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border: 6px solid #ffffff;
+            border-bottom: 28px solid #ffffff;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.5);
+            border-radius: 4px;
+        }
+        @keyframes swing {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+
+        /* --- تصميم الورقة الأخيرة السوداء المتوافقة مع الجوال --- */
+        .black-paper {
+            background: #0f172a;
+            color: #f1f5f9;
+            padding: 2rem 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            text-align: right;
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            width: 100%;
+            max-height: 60vh; /* يمنع اختفاء الورقة في الجوال ويعطيها تصفح ذكي */
+            overflow-y: auto;
+        }
+        .black-paper p {
+            color: #cbd5e1 !important;
+            font-weight: 400;
+            line-height: 1.8;
+            font-size: 1.05rem;
+            margin-bottom: 0;
+        }
+        
+        /* إضافة وردات وقلوب زينة بالورقة السوداء */
+        .rose-top-left { position: absolute; top: 15px; left: 15px; font-size: 1.5rem; }
+        .rose-bottom-right { position: absolute; bottom: 15px; right: 15px; font-size: 1.2rem; opacity: 0.7; }
+        .heart-decor { position: absolute; top: 15px; right: 15px; font-size: 1.2rem; color: #ef4444; }
+
+        .music-box {
+            padding: 2rem 1.5rem;
+            border: 1px dashed rgba(255,255,255,0.2);
+            border-radius: 15px;
+            background: rgba(255,255,255,0.03);
+            width: 100%;
+        }
+
+        /* --- مطر الورد الأبيض --- */
+        .rose-petal {
+            position: absolute;
+            top: -20px;
+            background: radial-gradient(circle, #ffffff 60%, #f1f5f9 100%);
+            border-radius: 50% 0 50% 50%;
+            opacity: 0.8;
+            pointer-events: none;
+            z-index: 1;
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.7; }
+            90% { opacity: 0.7; }
+            100% { transform: translateY(105vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- قلوب خلفية لطيفة في الشاشة الرئيسية -->
+    <div class="bg-hearts" style="top:20%; left:15%;">🤍</div>
+    <div class="bg-hearts" style="bottom:25%; right:15%; animation-delay: 1s;">🤍</div>
+
+    <audio id="bg-music" src="song.mp3" loop></audio>
+
+    <div class="container">
+        
+        <!-- الخطوة 1: الظرف والرسالة المستطيلة في المنتصف -->
+        <div class="step active" id="step-1">
+            <div class="handwritten-text">hey yara!</div>
+            
+            <div class="envelope-container" id="main-envelope" onclick="openEnvelope()">
+                <div class="envelope-flap"></div>
+                <div class="heart-seal"></div>
+                <div class="envelope-front"></div>
+            </div>
+
+            <!-- الرسالة المستطيلة تظهر في منتصف الشاشة بدقة -->
+            <div class="letter-popup" id="popup-message">
+                <h3 style="margin-bottom: 1rem; color:#0f172a; font-size: 1.5rem;">يهلا يارا ✨</h3>
+                <p style="color: #334155; font-size: 1.05rem; line-height: 1.8; margin-bottom: 1.5rem;">
+                    هذا المكان صُمم خصيصًا لك، ليكون شيئًا مميزًا يحمل اسمك ويعكس جمال حضورك. أتمنى أن ترسمي ابتسامة وأنتِ تتجولين بين صفحاته، وأن تعرفي أن هناك من خصص وقتًا وجهدًا ليصنع لك شيئًا فريدًا.
+                    <br><br>
+                    أتمنى لك أيامًا جميلة مليئة بالفرح والنجاح.
+                </p>
+                <div style="text-align:center;">
+                    <button class="btn" style="color:#0f172a; border-color:#0f172a; font-weight:700;" onclick="goToStep(2)">التالي ←</button>
+                </div>
+            </div>
+
+            <div class="handwritten-text">you've got a new message</div>
+        </div>
+
+        <!-- الخطوة 2: تشغيل الأغنية والموسيقى -->
+        <div class="step" id="step-2">
+            <h1>الموسيقى الخاصّة بكِ 🎵</h1>
+            <div class="music-box">
+                <p style="text-align:center; margin-bottom:1.5rem; color:#cbd5e1;">اضغطي على تشغيل لتستمعي للأغنية قبل الانتقال لصفحتك</p>
+                <button class="btn" onclick="playMusic()" style="background:#ffffff; color:#0f172a; font-weight:700; width:100%; max-width:200px;">▶ تشغيل</button>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn" onclick="goToStep(1)">السابق</button>
+                <button class="btn" onclick="goToStep(3)">التالي ←</button>
+            </div>
+        </div>
+
+        <!-- الخطوة 3: الصورة المعلقة ومطر الورد والورقة السوداء مع الإضافات اللطيفة -->
+        <div class="step" id="step-3">
+            
+            <div class="photo-hanger">
+                <div class="string string-left"></div>
+                <div class="string string-center"></div>
+                <div class="string string-right"></div>
+                <img src="yara.jpg" alt="Yara" class="yara-photo">
+            </div>
+
+            <!-- الورقة السوداء المحمية للجوال والمليئة بالورد والقلوب -->
+            <div class="black-paper">
+                <div class="rose-top-left">🌹</div> 
+                <div class="heart-decor">❤️</div>
+                <p>
+                    أحب أن أقول لك إنك شخص يترك أثرًا جميلًا أينما كان. تمتلكين جمالًا يلفت النظر، لكن الأجمل منه أخلاقك وطريقتك الراقية في التعامل مع الآخرين.
+                    <br><br>
+                    أنتِ أنيقة في حضورك، مميزة في أسلوبك، وقوية أكثر مما تتخيلين. لا تدعي أي لحظة صعبة تجعلك تنسين قيمتك، فأنتِ تستحقين كل خير وكل نجاح وكل سعادة.
+                    <br><br>
+                    حافظي على ابتسامتك وطموحك، فهناك أشياء جميلة كثيرة بانتظارك في المستقبل. وتذكري دائمًا أن تميّزك لا يأتي من شكلك فقط، بل من شخصيتك وقلبك وروحك الجميلة.
+                    <br><br>
+                    أتمنى لك أيامًا مليئة بالفرح والنجاح واللحظات التي تستناك.
+                </p>
+                <div class="rose-bottom-right">🌹</div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn" onclick="goToStep(2)">السابق</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const music = document.getElementById('bg-music');
+        let roseInterval;
+
+        function openEnvelope() {
+            document.getElementById('main-envelope').classList.add('open');
+        }
+
+        function goToStep(stepNumber) {
+            // إخفاء الـ Popup والخطوات
+            if(stepNumber !== 1) {
+                document.getElementById('popup-message').style.opacity = '0';
+                document.getElementById('popup-message').style.pointerEvents = 'none';
+            }
+            
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+            document.getElementById(`step-${stepNumber}`).classList.add('active');
+
+            if (stepNumber === 1 && document.getElementById('main-envelope').classList.contains('open')) {
+                // إرجاع الـ popup لو رجعنا للخطوة 1 والظرف مفتوح
+                document.getElementById('popup-message').style.opacity = '1';
+                document.getElementById('popup-message').style.pointerEvents = 'auto';
+            }
+
+            if (stepNumber === 3) {
+                startRoseRain();
+            } else {
+                stopRoseRain();
+            }
+        }
+
+        function playMusic() {
+            music.play().then(() => {
+                alert("تم تشغيل الأغنية! اضغطي على التالي الآن 🤍");
+            }).catch(error => { console.log("Music blocked"); });
+        }
+
+        function startRoseRain() {
+            if (roseInterval) return;
+            roseInterval = setInterval(() => {
+                const petal = document.createElement('div');
+                petal.classList.add('rose-petal');
+                const size = Math.random() * 12 + 10;
+                petal.style.width = `${size}px`;
+                petal.style.height = `${size}px`;
+                petal.style.left = Math.random() * 100 + 'vw';
+                petal.style.animationDuration = Math.random() * 3 + 4 + 's';
+                document.body.appendChild(petal);
+                setTimeout(() => { petal.remove(); }, 7000);
+            }, 200); // زيادة الكثافة قليلاً لشعور مطر أجمل
+        }
+
+        function stopRoseRain() {
+            clearInterval(roseInterval);
+            roseInterval = null;
+            document.querySelectorAll('.rose-petal').forEach(petal => petal.remove());
+        }
+    </script>
+</body>
+</html>
